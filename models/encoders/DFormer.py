@@ -219,7 +219,8 @@ class DFormer(BaseModule):
             nn.Conv2d(3, dims[0] // 2, kernel_size=3, stride=2, padding=1),
             nn.BatchNorm2d(dims[0] // 2),
             nn.GELU(),
-            StemModule(dims[0] // 2, dims[0]),
+            nn.Conv2d(dims[0] // 2, dims[0], kernel_size=3, stride=2, padding=1),
+            # StemModule(dims[0] // 2, dims[0]),
             nn.BatchNorm2d(dims[0]),
         )
 

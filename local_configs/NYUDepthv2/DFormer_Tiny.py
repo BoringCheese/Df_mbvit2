@@ -12,7 +12,7 @@ cfg = C
 
 # C.seed = 12345
 
-remoteip = os.popen('pwd').read()
+# remoteip = os.popen('pwd').read()
 C.root_dir = 'datasets'  # os.path.abspath(os.path.join(os.getcwd(), './'))
 C.abs_dir = osp.realpath(".")
 

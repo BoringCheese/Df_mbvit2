@@ -42,7 +42,7 @@ def main(args):
     val_images_path, val_images_label = read_data(val_path)
     v_train_images_path = [path.replace('\\flower_data\\', '\\flower_data_g\\') for path in r_train_images_path]
     v_val_images_path = [path.replace('\\flower_data\\', '\\flower_data_g\\') for path in val_images_path]
-    img_size = 512
+    img_size = 256
 
     data_transform = {
         "train": transforms.Compose([transforms.RandomResizedCrop(img_size),
@@ -80,7 +80,7 @@ def main(args):
                                                )
     # print(type(train_loader))
     val_loader = torch.utils.data.DataLoader(val_dataset,
-                                             batch_size=batch_size,
+                                             batch_size=1,
                                              shuffle=False,
                                              pin_memory=True,
                                              num_workers=nw,
@@ -126,7 +126,7 @@ def main(args):
                                      data_loader=val_loader,
                                      device=device,
                                      epoch=epoch)
-        with open("H:\\data\\df.txt", "a+") as f:
+        with open("H:\\data\\df_7*7.txt", "a+") as f:
             print("[train epoch {}] loss: {:.3f}, acc: {:.3f}".format(epoch, train_loss, train_acc), file=f)
             print("[val epoch {}] loss: {:.3f}, acc: {:.3f}".format(epoch, val_loss, val_acc), file=f)
         tags = ["train_loss", "train_acc", "val_loss", "val_acc", "learning_rate"]
@@ -148,7 +148,7 @@ if __name__ == '__main__':
     parser.add_argument('--config', help='train config file path')
     parser.add_argument('--gpus', help='used gpu number')
     parser.add_argument('--num_classes', type=int, default=5)
-    parser.add_argument('--epochs', type=int, default=200)
+    parser.add_argument('--epochs', type=int, default=500)
     parser.add_argument('--batch-size', type=int, default=8)
     parser.add_argument('--lr', type=float, default=0.0002)
 
@@ -160,7 +160,7 @@ if __name__ == '__main__':
                         default="H:\\Df_mbvit\\datasets\\flower_data\\vision")
 
     # 预训练权重路径，如果不想载入就设置为空字符
-    parser.add_argument('--weights', type=str, default='H:\\Df_mbvit\\weights\\best_model.pth',
+    parser.add_argument('--weights', type=str, default='',
                         help='initial weights path')
     # 是否冻结权重
     parser.add_argument('--freeze-layers', type=bool, default=False)

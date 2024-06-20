@@ -153,9 +153,13 @@ class EncoderDecoder(nn.Module):
             self.init_weights(cfg, pretrained=cfg.pretrained_model)
         model_vit_cfg = get_config("xx_small")
         out_channels = 40
+        # self.feature1 = self.mobilenet_layer(40, 64, 4, 6)
+        self.feature1 = self.mobilenet_layer(40, 96, 4, 1)
+        self.feature2 = self.mobilenet_layer(96, 160, 3, 1)
         self.layer_3, out_channels = self._make_layer(input_channel=out_channels, cfg=model_vit_cfg["layer3"])
         self.layer_4, out_channels = self._make_layer(input_channel=out_channels, cfg=model_vit_cfg["layer4"])
         self.layer_5, out_channels = self._make_layer(input_channel=out_channels, cfg=model_vit_cfg["layer5"])
+        out_channels = 160
         exp_channels = min(model_vit_cfg["last_layer_exp_factor"] * out_channels, 960)
         self.conv_1x1_exp = ConvLayer(
             in_channels=out_channels,
@@ -188,6 +192,22 @@ class EncoderDecoder(nn.Module):
             return self._make_mit_layer(input_channel=input_channel, cfg=cfg)
         else:
             return self._make_mobilenet_layer(input_channel=input_channel, cfg=cfg)
+
+    @staticmethod
+    def mobilenet_layer(input_channel: int, output_channels: int, num_blocks: int, expand_ratio: int):
+        block = []
+        for i in range(num_blocks):
+            stride = 2 if i == 0 else 1
+            layer = InvertedResidual(
+                in_channels=input_channel,
+                out_channels=output_channels,
+                stride=stride,
+                expand_ratio=expand_ratio
+            )
+            block.append(layer)
+            input_channel = output_channels
+
+        return nn.Sequential(*block)
 
     @staticmethod
     def _make_mobilenet_layer(input_channel: int, cfg: Dict) -> Tuple[nn.Sequential, int]:
@@ -270,9 +290,11 @@ class EncoderDecoder(nn.Module):
             out, aux_fm = self.encode_decode(rgb, modal_x)
         else:
             out = self.encode_decode(rgb, modal_x)
-        out = self.layer_3(out)
-        out = self.layer_4(out)
-        out = self.layer_5(out)
+        # out = self.layer_3(out)
+        # out = self.layer_4(out)
+        # out = self.layer_5(out)
+        out = self.feature1(out)
+        out = self.feature2(out)
         out = self.conv_1x1_exp(out)
         out = self.classifier(out)
         # if label is not None:
